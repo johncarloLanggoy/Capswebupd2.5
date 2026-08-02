@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Panel - PetLink</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='staff.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>👨‍💼 Staff Panel</h1>
+    <p class="subtitle">Manage customer accounts, pets, appointments, and view clinic statistics</p>
+
+    <!-- Staff Navigation -->
+    <div class="staff-nav">
+      <a class="active" id="navCustomers" onclick="showCustomersTab()">👥 Customer Management</a>
+      <a id="navPets" onclick="showPetsTab()">🐕 Pet Management</a>
+      <a id="navAppointments" onclick="showAppointmentsTab()">📅 Appointments</a>
+      <a href="/">🏠 Home</a>
+      {% if role == 'admin' %}
+      <a href="/admin">⚙️ Admin Panel</a>
+      {% endif %}
+      <a href="/vet">🏥 Vet Panel</a>
+    </div>
+
+    <!-- STATISTICS CARDS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="number">{{ total_customers }}</div>
+        <div class="label">Total Customers</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="totalPets">{{ total_pets }}</div>
+        <div class="label">Total Pets</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="totalAppointments">0</div>
+        <div class="label">Total Appointments</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="pendingAppointments">0</div>
+        <div class="label">Pending</div>
+      </div>
+    </div>
+
+    <!-- CUSTOMER MANAGEMENT SECTION -->
+    <div id="customerSection">
+      <div class="card">
+        <h2>👤 Add New Customer</h2>
+        <p>Create a new customer (pet owner) account. Customers can view their pets' health records and appointments.</p>
+        <button class="btn-add" onclick="window.location.href='/register'">
+          ➕ Create Customer Account
+        </button>
+      </div>
+
+      <div class="card">
+        <h2>👥 Customer List</h2>
+        <p style="color: #94a3b8; margin-bottom: 15px; font-size: 14px;">
+          All registered customers (pet owners) in the system.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Address</th>
+              <th>Role</th>
+              <th>Created At</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in customers %}
+            <tr>
+              <td>{{ user.id }}</td>
+              <td><span class="truncate" title="{{ user.email }}">{{ user.email }}</span></td>
+              <td>{{ user.phone or '—' }}</td>
+              <td><span class="truncate" title="{{ user.address }}">{{ user.address or '—' }}</span></td>
+              <td>
+                <span class="role-badge 
+                  {% if user.role == 'admin' %}role-admin
+                  {% elif user.role == 'staff' %}role-staff
+                  {% elif user.role == 'vet' %}role-vet
+                  {% else %}role-user{% endif %}">
+                  {{ user.role }}
+                </span>
+              </td>
+              <td>{{ user.created_at }}</td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="6" style="text-align: center; color: #64748b; padding: 30px;">
+                No customers registered yet. Click "Create Customer Account" to add one.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PET MANAGEMENT SECTION -->
+    <div id="petSection" style="display: none;">
+      <div class="card">
+        <h2>🐕 Add New Pet</h2>
+        <p>Register a new pet and link it to an existing customer.</p>
+        <button class="btn-add-pet" onclick="showAddPetModal()">
+          ➕ Register Pet
+        </button>
+      </div>
+
+      <div class="card">
+        <h2>🐕 Pet List</h2>
+        <p style="color: #94a3b8; margin-bottom: 15px; font-size: 14px;">
+          All registered pets in the system.
+        </p>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Pet</th>
+                <th>Type</th>
+                <th>Breed</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Owner</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="petTableBody">
+              <tr>
+                <td colspan="9" style="text-align: center; color: #64748b; padding: 30px;">
+                  Loading pets...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- APPOINTMENTS SECTION -->
+    <div id="appointmentsSection" style="display: none;">
+      <div class="card">
+        <h2>📅 Appointment Management</h2>
+        <p style="color: #94a3b8; margin-bottom: 15px; font-size: 14px;">
+          Manage all customer appointments. Confirm, complete, or cancel appointments.
+        </p>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Pet</th>
+                <th>Customer</th>
+                <th>Service</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="appointmentsTableBody">
+              <tr>
+                <td colspan="8" style="text-align: center; color: #64748b; padding: 30px;">
+                  Loading appointments...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logout Button -->
+    <div class="logout-container">
+      <button class="logout-btn" onclick="showLogoutModal()">
+        🚪 Logout
+      </button>
+      <button class="back-btn" onclick="window.location.href='/'">
+        ← Back to Home
+      </button>
+    </div>
+  </div>
+
+  <div id="message" class="message"></div>
+
+  <!-- ── ADD PET MODAL ────────────────────────────────────────────────── -->
+  <div id="addPetModal" class="modal-overlay" style="display: none;">
+    <div class="modal-popup">
+      <h3>🐕 Register New Pet</h3>
+      <form id="petForm" onsubmit="submitPet(event)">
+        <div class="form-group">
+          <label for="petOwner">Owner <span style="color: #ef4444;">*</span></label>
+          <select id="petOwner" required>
+            <option value="">Select customer...</option>
+          </select>
+        </div>
+        <!-- Pet Type -->
+        <div class="form-group">
+          <label for="petType">Pet Type <span style="color: #ef4444;">*</span></label>
+          <select id="petType" required>
+            <option value="Dog">🐕 Dog</option>
+            <option value="Cat">🐈 Cat</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="petName">Pet Name <span style="color: #ef4444;">*</span></label>
+          <input type="text" id="petName" placeholder="Enter pet name" required>
+        </div>
+        <div class="form-group">
+          <label for="petBreed">Breed</label>
+          <input type="text" id="petBreed" placeholder="e.g., Labrador, Golden Retriever, Persian">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div class="form-group">
+            <label for="petAge">Age (years)</label>
+            <input type="number" id="petAge" placeholder="e.g., 3" min="0">
+          </div>
+          <div class="form-group">
+            <label for="petGender">Gender</label>
+            <select id="petGender">
+              <option value="">Select...</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div class="form-group">
+            <label for="petColor">Color</label>
+            <input type="text" id="petColor" placeholder="e.g., Brown, White">
+          </div>
+          <div class="form-group">
+            <label for="petWeight">Weight (kg)</label>
+            <input type="number" id="petWeight" placeholder="e.g., 15.5" step="0.1">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="petAllergies">Allergies</label>
+          <input type="text" id="petAllergies" placeholder="e.g., Chicken, Dust">
+        </div>
+        <div class="form-group">
+          <label for="petMedicalHistory">Medical History</label>
+          <textarea id="petMedicalHistory" placeholder="Previous illnesses, surgeries, conditions..."></textarea>
+        </div>
+        <!-- Pet Image Upload -->
+        <div class="form-group">
+          <label for="petImage">Pet Photo</label>
+          <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+            <div id="petImagePreview" style="width: 80px; height: 80px; border-radius: 50%; background: #0f172a; border: 2px dashed #334155; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+              <span style="color: #64748b; font-size: 12px; text-align: center;">No<br>Image</span>
+            </div>
+            <input type="file" id="petImage" accept="image/*" onchange="previewPetImage(event)" style="padding: 8px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: white; cursor: pointer;">
+          </div>
+          <span style="font-size: 11px; color: #64748b;">Upload a photo of your pet (optional)</span>
+        </div>
+        <div class="modal-buttons">
+          <button type="button" class="modal-btn modal-btn-cancel" onclick="closeAddPetModal()">Cancel</button>
+          <button type="submit" class="modal-btn modal-btn-submit">💾 Save Pet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── EDIT PET MODAL ───────────────────────────────────────────────── -->
+  <div id="editPetModal" class="modal-overlay" style="display: none;">
+    <div class="modal-popup">
+      <h3>✏️ Edit Pet</h3>
+      <form id="editPetForm" onsubmit="updatePet(event)">
+        <input type="hidden" id="editPetId">
+        <!-- Pet Type -->
+        <div class="form-group">
+          <label for="editPetType">Pet Type <span style="color: #ef4444;">*</span></label>
+          <select id="editPetType" required>
+            <option value="Dog">🐕 Dog</option>
+            <option value="Cat">🐈 Cat</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="editPetName">Pet Name <span style="color: #ef4444;">*</span></label>
+          <input type="text" id="editPetName" placeholder="Enter pet name" required>
+        </div>
+        <div class="form-group">
+          <label for="editPetBreed">Breed</label>
+          <input type="text" id="editPetBreed" placeholder="e.g., Labrador, Golden Retriever, Persian">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div class="form-group">
+            <label for="editPetAge">Age (years)</label>
+            <input type="number" id="editPetAge" placeholder="e.g., 3" min="0">
+          </div>
+          <div class="form-group">
+            <label for="editPetGender">Gender</label>
+            <select id="editPetGender">
+              <option value="">Select...</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div class="form-group">
+            <label for="editPetColor">Color</label>
+            <input type="text" id="editPetColor" placeholder="e.g., Brown, White">
+          </div>
+          <div class="form-group">
+            <label for="editPetWeight">Weight (kg)</label>
+            <input type="number" id="editPetWeight" placeholder="e.g., 15.5" step="0.1">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="editPetAllergies">Allergies</label>
+          <input type="text" id="editPetAllergies" placeholder="e.g., Chicken, Dust">
+        </div>
+        <div class="form-group">
+          <label for="editPetMedicalHistory">Medical History</label>
+          <textarea id="editPetMedicalHistory" placeholder="Previous illnesses, surgeries, conditions..."></textarea>
+        </div>
+        <!-- Edit Pet Image Upload -->
+        <div class="form-group">
+          <label for="editPetImage">Pet Photo</label>
+          <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+            <div id="editPetImagePreview" style="width: 80px; height: 80px; border-radius: 50%; background: #0f172a; border: 2px dashed #334155; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+              <span style="color: #64748b; font-size: 12px; text-align: center;">No<br>Image</span>
+            </div>
+            <input type="file" id="editPetImage" accept="image/*" onchange="previewEditPetImage(event)" style="padding: 8px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: white; cursor: pointer;">
+          </div>
+          <span style="font-size: 11px; color: #64748b;">Upload a photo of your pet (optional)</span>
+        </div>
+        <div class="modal-buttons">
+          <button type="button" class="modal-btn modal-btn-cancel" onclick="closeEditPetModal()">Cancel</button>
+          <button type="submit" class="modal-btn modal-btn-submit">💾 Update Pet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── LOGOUT MODAL ────────────────────────────────────────────────── -->
+  <div id="logoutModal" class="modal-overlay" style="display: none;">
+    <div class="modal-popup" style="max-width: 400px;">
+      <div style="text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 20px;">🚪</div>
+        <h3 style="color: #38bdf8; font-size: 24px; margin-bottom: 10px;">Logout Confirmation</h3>
+        <p style="color: #94a3b8; margin-bottom: 25px; line-height: 1.6;">Are you sure you want to logout? You'll need to sign in again to access your staff panel.</p>
+        <div class="modal-buttons">
+          <button class="modal-btn modal-btn-cancel" onclick="closeLogoutModal()">Cancel</button>
+          <button class="modal-btn modal-btn-logout" onclick="confirmLogout()">Yes, Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='staff.js') }}"></script>
+</body>
+</html>

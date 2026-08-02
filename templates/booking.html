@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Appointment - PetLink</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .booking-container {
+      max-width: 600px;
+      width: 100%;
+      background: rgba(30, 41, 59, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 40px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      animation: slideUp 0.6s ease;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(50px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .brand {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .brand-icon { font-size: 48px; margin-bottom: 10px; }
+    .brand-name {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    h2 {
+      color: #fff;
+      font-size: 24px;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .subtitle {
+      color: #94a3b8;
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    label {
+      display: block;
+      color: #cbd5e1;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    label .required {
+      color: #ef4444;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 16px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      color: white;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+    }
+    textarea { resize: vertical; min-height: 60px; font-family: 'Poppins', sans-serif; }
+    select option { background: #1e293b; }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .booking-container { padding: 25px; }
+    }
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      border: none;
+      border-radius: 12px;
+      color: #0f172a;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 10px;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(56, 189, 248, 0.4);
+    }
+    .btn-secondary {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      color: #94a3b8;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 10px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-secondary:hover {
+      border-color: #38bdf8;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.05);
+    }
+    .message {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      display: none;
+    }
+    .message.show { display: block; }
+    .message.success {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid #10b981;
+      color: #10b981;
+    }
+    .message.error {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid #ef4444;
+      color: #ef4444;
+    }
+    .info-box {
+      background: rgba(56, 189, 248, 0.05);
+      border: 1px solid rgba(56, 189, 248, 0.1);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #94a3b8;
+      text-align: center;
+    }
+    .info-box strong { color: #38bdf8; }
+    .back-link {
+      display: block;
+      text-align: center;
+      color: #64748b;
+      text-decoration: none;
+      margin-top: 15px;
+      font-size: 13px;
+    }
+    .back-link:hover { color: #38bdf8; }
+  </style>
+</head>
+<body>
+  <div class="booking-container">
+    <div class="brand">
+      <div class="brand-icon">🐾</div>
+      <span class="brand-name">PetLink</span>
+    </div>
+
+    <h2>📅 Book an Appointment</h2>
+    <p class="subtitle">No account needed! Just fill up the form and we'll get back to you.</p>
+
+    <div class="info-box">
+      📌 <strong>No account required!</strong> Just provide your details and preferred schedule. 
+      We'll confirm your appointment via email or phone.
+    </div>
+
+    <form id="bookingForm" onsubmit="submitGuestBooking(event)">
+      <!-- Customer Info -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="guestName">Full Name <span class="required">*</span></label>
+          <input type="text" id="guestName" placeholder="Enter your full name" required>
+        </div>
+        <div class="form-group">
+          <label for="guestEmail">Email Address <span class="required">*</span></label>
+          <input type="email" id="guestEmail" placeholder="your@email.com" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="guestPhone">Phone Number <span class="required">*</span></label>
+        <input type="tel" id="guestPhone" placeholder="e.g., 09171234567" required>
+      </div>
+
+      <!-- Pet Info -->
+      <div class="form-group">
+        <label for="guestPetName">Pet Name <span class="required">*</span></label>
+        <input type="text" id="guestPetName" placeholder="Enter pet name" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="guestPetType">Pet Type <span class="required">*</span></label>
+          <select id="guestPetType" required>
+            <option value="Dog">🐕 Dog</option>
+            <option value="Cat">🐈 Cat</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="guestPetBreed">Breed</label>
+          <input type="text" id="guestPetBreed" placeholder="e.g., Labrador, Persian">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="guestPetAge">Age (years)</label>
+          <input type="number" id="guestPetAge" placeholder="e.g., 3" min="0">
+        </div>
+        <div class="form-group">
+          <label for="guestPetGender">Gender</label>
+          <select id="guestPetGender">
+            <option value="">Select...</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Service & Schedule -->
+      <div class="form-group">
+        <label for="guestService">Service <span class="required">*</span></label>
+        <select id="guestService" required>
+          <option value="">Choose a service...</option>
+          <option value="Full Grooming">Full Grooming</option>
+          <option value="Bath & Brush">Bath & Brush</option>
+          <option value="Nail Trim">Nail Trim</option>
+          <option value="Teeth Cleaning">Teeth Cleaning</option>
+          <option value="De-shedding">De-shedding</option>
+          <option value="Creative Styling">Creative Styling</option>
+          <option value="Ear Cleaning">Ear Cleaning</option>
+          <option value="Vaccination">Vaccination</option>
+          <option value="Health Check-up">Health Check-up</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="guestDate">Preferred Date <span class="required">*</span></label>
+          <input type="date" id="guestDate" required>
+        </div>
+        <div class="form-group">
+          <label for="guestTime">Preferred Time <span class="required">*</span></label>
+          <select id="guestTime" required>
+            <option value="">Select time...</option>
+            <option value="08:00">8:00 AM</option>
+            <option value="08:30">8:30 AM</option>
+            <option value="09:00">9:00 AM</option>
+            <option value="09:30">9:30 AM</option>
+            <option value="10:00">10:00 AM</option>
+            <option value="10:30">10:30 AM</option>
+            <option value="11:00">11:00 AM</option>
+            <option value="11:30">11:30 AM</option>
+            <option value="12:00">12:00 PM</option>
+            <option value="13:00">1:00 PM</option>
+            <option value="13:30">1:30 PM</option>
+            <option value="14:00">2:00 PM</option>
+            <option value="14:30">2:30 PM</option>
+            <option value="15:00">3:00 PM</option>
+            <option value="15:30">3:30 PM</option>
+            <option value="16:00">4:00 PM</option>
+            <option value="16:30">4:30 PM</option>
+            <option value="17:00">5:00 PM</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="guestNotes">Additional Notes</label>
+        <textarea id="guestNotes" placeholder="Any special requests or information..."></textarea>
+      </div>
+
+      <button type="submit" class="btn-primary" id="submitBtn">📅 Book Appointment</button>
+      <a href="/" class="btn-secondary">← Back to Home</a>
+    </form>
+
+    <div id="message" class="message"></div>
+    <a href="/" class="back-link">← Back to PetLink Home</a>
+  </div>
+
+  <script>
+    // Set min date to today
+    document.addEventListener('DOMContentLoaded', function() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('guestDate').min = today;
+    });
+
+    async function submitGuestBooking(e) {
+      e.preventDefault();
+
+      const btn = document.getElementById('submitBtn');
+      const msg = document.getElementById('message');
+      const originalText = btn.textContent;
+
+      // Get form data
+      const name = document.getElementById('guestName').value.trim();
+      const email = document.getElementById('guestEmail').value.trim();
+      const phone = document.getElementById('guestPhone').value.trim();
+      const pet_name = document.getElementById('guestPetName').value.trim();
+      const pet_type = document.getElementById('guestPetType').value;
+      const breed = document.getElementById('guestPetBreed').value.trim();
+      const age = document.getElementById('guestPetAge').value;
+      const gender = document.getElementById('guestPetGender').value;
+      const service_type = document.getElementById('guestService').value;
+      const appointment_date = document.getElementById('guestDate').value;
+      const appointment_time = document.getElementById('guestTime').value;
+      const notes = document.getElementById('guestNotes').value.trim();
+
+      // Validate
+      if (!name || !email || !phone || !pet_name || !service_type || !appointment_date || !appointment_time) {
+        showMessage('Please fill in all required fields.', 'error');
+        return;
+      }
+
+      // Validate email
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailPattern.test(email)) {
+        showMessage('Please enter a valid email address.', 'error');
+        return;
+      }
+
+      // Validate phone
+      const phonePattern = /^(09|\+639|9)\d{9}$/;
+      if (!phonePattern.test(phone.replace(/[\s\-\(\)]/g, ''))) {
+        showMessage('Please enter a valid Philippine phone number (e.g., 09171234567).', 'error');
+        return;
+      }
+
+      // Show loading
+      btn.textContent = '⏳ Booking...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/guest-booking', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name, email, phone,
+            pet_name, pet_type, breed, age, gender,
+            service_type, appointment_date, appointment_time, notes
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          showMessage('✅ ' + data.message, 'success');
+          document.getElementById('bookingForm').reset();
+          // Reset date
+          const today = new Date().toISOString().split('T')[0];
+          document.getElementById('guestDate').min = today;
+        } else {
+          showMessage('❌ ' + data.message, 'error');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showMessage('Something went wrong. Please try again.', 'error');
+      }
+
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
+
+    function showMessage(text, type) {
+      const msg = document.getElementById('message');
+      msg.textContent = text;
+      msg.className = 'message show ' + type;
+      setTimeout(() => {
+        msg.classList.remove('show');
+      }, 6000);
+    }
+  </script>
+</body>
+</html>

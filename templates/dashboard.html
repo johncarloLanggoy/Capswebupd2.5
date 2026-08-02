@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - PetLink</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+
+<!-- Mobile Menu Button -->
+<button class="mobile-menu-btn" onclick="toggleMobileSidebar()">☰</button>
+
+<div class="dashboard">
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <h2 onclick="window.location.href='/'">🐾 PetLink</h2>
+      </div>
+      <button class="toggle-sidebar" onclick="toggleSidebar()">◀</button>
+    </div>
+    
+    <div class="sidebar-nav">
+      <div class="dropdown-container">
+        <button class="dropdown-btn" id="dropdownBtn" onclick="toggleDashboardDropdown(event)">
+          <span class="nav-left">
+            <span class="nav-icon">📊</span>
+            <span>Dashboard</span>
+          </span>
+          <span class="dropdown-arrow" id="dropdownArrow">▼</span>
+        </button>
+        <div class="dropdown-content" id="dropdownContent">
+          <a href="#" onclick="scrollToSection('dashboard-top'); return false;">
+            <span class="nav-icon">🏠</span>
+            <span>Overview</span>
+          </a>
+          <a href="#" onclick="scrollToSection('my-pets-section'); return false;">
+            <span class="nav-icon">🐕</span>
+            <span>My Pets</span>
+          </a>
+          <a href="#" onclick="scrollToSection('my-appointments-section'); return false;">
+            <span class="nav-icon">📅</span>
+            <span>My Appointments</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Staff Panel Link - visible to staff and admin -->
+      {% if role == 'staff' or role == 'admin' %}
+      <div style="margin-top: 15px; border-top: 1px solid #334155; padding-top: 15px;">
+        <a href="/staff" style="display:flex; align-items:center; gap:12px; color:#38bdf8; text-decoration:none; padding:12px 15px; border-radius:12px; background:rgba(56,189,248,0.12); transition: all 0.3s ease;">
+          <span class="nav-icon" style="font-size:20px;">👨‍💼</span>
+          <span style="font-weight:500;">Staff Panel</span>
+          <span style="margin-left:auto; font-size:10px; background:rgba(56,189,248,0.2); padding:2px 10px; border-radius:10px; color:#38bdf8;">STAFF</span>
+        </a>
+      </div>
+      {% endif %}
+      
+      <!-- Admin Panel Link - visible to admin only -->
+      {% if role == 'admin' %}
+      <div style="margin-top: 8px;">
+        <a href="/admin" style="display:flex; align-items:center; gap:12px; color:#a78bfa; text-decoration:none; padding:12px 15px; border-radius:12px; background:rgba(167,139,250,0.12); transition: all 0.3s ease;">
+          <span class="nav-icon" style="font-size:20px;">⚙️</span>
+          <span style="font-weight:500;">Admin Panel</span>
+          <span style="margin-left:auto; font-size:10px; background:rgba(167,139,250,0.2); padding:2px 10px; border-radius:10px; color:#a78bfa;">ADMIN</span>
+        </a>
+      </div>
+      {% endif %}
+
+      <!-- Vet Panel Link - visible to vet only -->
+      {% if role == 'vet' %}
+      <div style="margin-top: 8px;">
+        <a href="/vet" style="display:flex; align-items:center; gap:12px; color:#10b981; text-decoration:none; padding:12px 15px; border-radius:12px; background:rgba(16,185,129,0.12); transition: all 0.3s ease;">
+          <span class="nav-icon" style="font-size:20px;">🏥</span>
+          <span style="font-weight:500;">Vet Panel</span>
+          <span style="margin-left:auto; font-size:10px; background:rgba(16,185,129,0.2); padding:2px 10px; border-radius:10px; color:#10b981;">VET</span>
+        </a>
+      </div>
+      {% endif %}
+    </div>
+    
+    <div class="user-info">
+      <p>👤 {{ username }}</p>
+      <p class="role">{{ role|upper }}</p>
+    </div>
+    <button class="logout-btn" onclick="showLogoutModal()">
+      <span>🚪</span>
+      <span>Logout</span>
+    </button>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main" id="mainContent">
+    <div class="welcome-header" id="dashboard-top">
+      <h1>Welcome back, {{ username }}! 🐾</h1>
+      <p>Your pet care dashboard is ready. View your pets, manage appointments, and more.</p>
+    </div>
+
+    <!-- STATISTICS CARDS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">🐕</div>
+        <h3>MY PETS</h3>
+        <p id="petCount">0</p>
+        <small>Pets registered</small>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <h3>MY APPOINTMENTS</h3>
+        <p id="appointmentCount">0</p>
+        <small>Total appointments</small>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <h3>UPCOMING</h3>
+        <p id="upcomingCount">0</p>
+        <small>Pending/Confirmed</small>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⭐</div>
+        <h3>COMPLETED</h3>
+        <p id="completedCount">0</p>
+        <small>Completed sessions</small>
+      </div>
+    </div>
+
+    <!-- BOOK APPOINTMENT BUTTON -->
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+      <button class="btn-book-appointment" onclick="showBookAppointmentModal()">
+        📅 Book New Appointment
+      </button>
+    </div>
+
+    <!-- MY APPOINTMENTS SECTION -->
+    <h2 class="section-title" id="my-appointments-section">📅 My Appointments</h2>
+    <div id="myAppointmentsContainer">
+      <div class="no-appointments">
+        <div class="icon">📅</div>
+        <h3>Loading your appointments...</h3>
+        <p>Please wait while we fetch your appointment information.</p>
+      </div>
+    </div>
+
+    <!-- MY PETS SECTION -->
+    <h2 class="section-title" id="my-pets-section" style="margin-top: 40px;">🐕 My Pets</h2>
+    <div id="myPetsContainer">
+      <div class="no-pets-message">
+        <div class="icon">🐾</div>
+        <h3>Loading your pets...</h3>
+        <p>Please wait while we fetch your pet information.</p>
+      </div>
+    </div>
+
+    <!-- FEATURE CARDS -->
+    <div class="feature-grid" style="margin-top: 40px;">
+      <div class="feature-card">
+        <div class="icon">📋</div>
+        <h3>Pet Health Records</h3>
+        <p>Keep track of your pet's vaccination history, medical records, and health status all in one place.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">⏰</div>
+        <h3>Smart Reminders</h3>
+        <p>Never miss a vaccination or grooming appointment with our automated reminder system.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🤖</div>
+        <h3>AI Recommendations</h3>
+        <p>Get personalized pet care recommendations powered by machine learning algorithms.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── BOOK APPOINTMENT MODAL ────────────────────────────────────────── -->
+<div id="bookAppointmentModal" class="modal-overlay" style="display: none;">
+  <div class="modal-popup" style="max-width: 550px;">
+    <h3>📅 Book Appointment</h3>
+    <form class="booking-form" id="bookingForm" onsubmit="submitAppointment(event)">
+      <div class="form-group">
+        <label for="bookingPet">Select Pet <span style="color: #ef4444;">*</span></label>
+        <select id="bookingPet" required>
+          <option value="">Choose your pet...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="bookingService">Service <span style="color: #ef4444;">*</span></label>
+        <select id="bookingService" required>
+          <option value="">Choose a service...</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="bookingDate">Date <span style="color: #ef4444;">*</span></label>
+          <input type="date" id="bookingDate" required>
+        </div>
+        <div class="form-group">
+          <label for="bookingTime">Time <span style="color: #ef4444;">*</span></label>
+          <select id="bookingTime" required>
+            <option value="">Select time...</option>
+            <option value="08:00">8:00 AM</option>
+            <option value="08:30">8:30 AM</option>
+            <option value="09:00">9:00 AM</option>
+            <option value="09:30">9:30 AM</option>
+            <option value="10:00">10:00 AM</option>
+            <option value="10:30">10:30 AM</option>
+            <option value="11:00">11:00 AM</option>
+            <option value="11:30">11:30 AM</option>
+            <option value="12:00">12:00 PM</option>
+            <option value="13:00">1:00 PM</option>
+            <option value="13:30">1:30 PM</option>
+            <option value="14:00">2:00 PM</option>
+            <option value="14:30">2:30 PM</option>
+            <option value="15:00">3:00 PM</option>
+            <option value="15:30">3:30 PM</option>
+            <option value="16:00">4:00 PM</option>
+            <option value="16:30">4:30 PM</option>
+            <option value="17:00">5:00 PM</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="bookingNotes">Additional Notes</label>
+        <textarea id="bookingNotes" placeholder="Any special requests or information..."></textarea>
+      </div>
+      <div class="modal-buttons">
+        <button type="button" class="modal-btn modal-btn-cancel" onclick="closeBookAppointmentModal()">Cancel</button>
+        <button type="submit" class="modal-btn modal-btn-submit">📅 Book Now</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── EDIT PET IMAGE MODAL ──────────────────────────────────────────── -->
+<div id="editPetImageModal" class="modal-overlay" style="display: none;">
+  <div class="modal-popup" style="max-width: 450px;">
+    <h3>📷 Update Pet Photo</h3>
+    <p style="color: #94a3b8; text-align: center; margin-bottom: 20px; font-size: 14px;">
+      Change the profile picture for <strong id="editPetNameDisplay" style="color: #38bdf8;">your pet</strong>
+    </p>
+    <form id="editPetImageForm" onsubmit="submitPetImageUpdate(event)">
+      <input type="hidden" id="editPetImageId">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <div id="editPetImagePreview2" style="width: 150px; height: 150px; border-radius: 50%; background: #0f172a; border: 2px dashed #334155; display: inline-flex; align-items: center; justify-content: center; overflow: hidden;">
+          <span style="color: #64748b; font-size: 14px; text-align: center;">No<br>Image</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="editPetImageInput">Choose New Photo</label>
+        <input type="file" id="editPetImageInput" accept="image/*" onchange="previewEditPetImage2(event)" style="padding: 10px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; color: white; cursor: pointer; width: 100%;">
+        <span style="font-size: 11px; color: #64748b; margin-top: 5px; display: block;">Supported formats: JPG, PNG, GIF (Max: 5MB)</span>
+      </div>
+      <div class="modal-buttons">
+        <button type="button" class="modal-btn modal-btn-cancel" onclick="closeEditPetImageModal()">Cancel</button>
+        <button type="submit" class="modal-btn modal-btn-submit" id="updatePhotoBtn">💾 Update Photo</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>
